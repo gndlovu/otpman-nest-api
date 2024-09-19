@@ -1,6 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { UsersService } from './users.service';
+import { LoginDto } from './dto/login-user';
 
 @Controller('auth/users')
 export class UsersController {
@@ -9,5 +10,10 @@ export class UsersController {
     @Post('/signup')
     create(@Body() createUserDto: Prisma.UserCreateInput) {
         return this.userService.create(createUserDto);
+    }
+
+    @Post('/login')
+    login(@Body() loginDto: LoginDto) {
+        return this.userService.login(loginDto);
     }
 }
