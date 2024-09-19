@@ -8,6 +8,6 @@ export class UsersController {
 
     @Post('/signup')
     create(@Body() createUserDto: Prisma.UserCreateInput) {
-        return this. userService.create(createUserDto);
+        return this.userService.create(createUserDto);
     }
 }
