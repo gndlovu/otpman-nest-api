@@ -1,15 +1,29 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
 
 import { DatabaseService } from '../../database/database.service';
+import { SendMailDto } from '../../mailer/mailer.interface';
+import { MailerService } from '../../mailer/mailer.service';
 
 @Injectable()
 export class OtpService {
-  constructor(private readonly dbService: DatabaseService, private readonly configService: ConfigService) {}
+  constructor(
+    private readonly dbService: DatabaseService, 
+    private readonly configService: ConfigService,
+    private readonly mailerService: MailerService,
+  ) {}
 
   async generateOtp(userId: number): Promise<string> {
+    const user = await this.dbService.user.findFirst({
+        where: { id: userId }
+    });
+
+    if (!user) {
+        throw new UnprocessableEntityException('Invalid user.');
+    }
+
     // 3. A user cannot request more than X OTPs per hour. X is a config/environment variable set to 3 for now,
     //   we should be able to change this easily.
     if (await this.hasReachedHourlyLimit(userId)) {
@@ -75,6 +89,8 @@ export class OtpService {
       }
     }
 
+    await this.sendOtpMail(user, otp.pin);
+
     return otp.pin;
   }
 
@@ -121,5 +137,26 @@ export class OtpService {
         ]
       },
     }) > this.configService.get<number>('MAX_OTP_REQ_PER_HR');
+  }
+
+  private async sendOtpMail(user: User, pin: string) {
+    const mailDto: SendMailDto = {
+      recipients: [
+          {
+              name: `${user.firstName} ${user.lastName}`,
+              address: user.email,
+          }
+      ],
+      subject: `Your ${this.configService.get<string>('APP_NAME')} OTP.`,
+      html: `
+          <p>
+              <strong>Hello ${user.firstName}</strong>, 
+              Your One-Time PIN to log in to ${this.configService.get<string>('APP_NAME')} is: ${pin}.
+          </p>
+          <p>Cheers!</p>
+      `,
+    };
+
+    await this.mailerService.sendMail(mailDto);
   }
 }
