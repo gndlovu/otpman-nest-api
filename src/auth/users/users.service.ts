@@ -63,7 +63,7 @@ export class UsersService {
         return user;
     }
 
-    async login(payload: LoginDto): Promise<{accessToken: string}> {
+    async login(payload: LoginDto): Promise<{isValid: boolean}> {
         const user = await this.dbService.user.findFirst({
             where: {
                 email: payload.email
@@ -79,15 +79,22 @@ export class UsersService {
             throw new UnauthorizedException('Invalid email / password.');
         }
 
-        // TODO - Only generate accessToken after successful OTP validation
+        return { isValid: true };
+    }
+    
+    async getAccessToken(userId: number) {
+        const user = await this.dbService.user.findFirst({
+            where: { id: userId }
+        });
+
         const accessToken = await this.jwtService.signAsync({
             id: user.id,
             name: `${user.firstName} ${user.lastName}`,
         });
 
-        return { accessToken };
+        return accessToken;
     }
-    
+
     private async encryptPassword(password, salt) {
         return await bcrypt.hash(password, salt);
     }

@@ -1,13 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Param } from '@nestjs/common';
 import { OtpService } from './otp.service';
-import { Prisma } from '@prisma/client';
+import { OtpValidateDto } from './dto/otp-validate.dto';
 
 @Controller('auth/otp')
 export class OtpController {
   constructor(private readonly otpService: OtpService) {}
 
-  @Post(':clientId')
-  generate(@Param('clientId') clientId: number) {
-    return this.otpService.generateOtp(+clientId);
+  @Post('/request/:clientId')
+  request(@Param('clientId') clientId: number) {
+    return this.otpService.requestOtp(+clientId);
+  }
+
+  @Post('/validate')
+  validate(@Body() otpDto: OtpValidateDto) {
+    return this.otpService.validateOtp(otpDto);
   }
 }

@@ -9,7 +9,8 @@ import { MailerModule } from '../../mailer/mailer.module';
 @Module({
   imports: [DatabaseModule, ConfigModule, MailerModule],
   controllers: [UsersController],
-  providers: [UsersService]
+  providers: [UsersService],
+  exports: [UsersService],
 })
 export class UsersModule {
 

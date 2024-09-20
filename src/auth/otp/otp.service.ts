@@ -1,4 +1,4 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
@@ -6,6 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import { DatabaseService } from '../../database/database.service';
 import { SendMailDto } from '../../mailer/mailer.interface';
 import { MailerService } from '../../mailer/mailer.service';
+import { OtpValidateDto } from './dto/otp-validate.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class OtpService {
@@ -13,9 +15,10 @@ export class OtpService {
     private readonly dbService: DatabaseService, 
     private readonly configService: ConfigService,
     private readonly mailerService: MailerService,
+    private readonly userService: UsersService,
   ) {}
 
-  async generateOtp(userId: number): Promise<string> {
+  async requestOtp(userId: number) {
     const user = await this.dbService.user.findFirst({
         where: { id: userId }
     });
@@ -40,16 +43,16 @@ export class OtpService {
     
     const now = new Date();
 
-    if (!otp || otp.expiresAt.getTime() < now.getTime()) {
-      // First time generation / token expired
-      otp = await this.generateNewOtp(userId);
-      console.log('First time generation / token expired: ', otp);
+    if (!otp || otp.expiresAt.getTime() < now.getTime() || otp.isUsed) {
+      // First time generation / token expired / isUsed
+      otp = await this.generateOtp(userId);
+      console.log('First time generation / token expired / isUsed: ', otp);
     } else {
       const twentyFourHoursAgo = new Date();
       twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
 
       if (twentyFourHoursAgo.getTime() > otp.createdAt.getTime()) {
-        otp = await this.generateNewOtp(userId);
+        otp = await this.generateOtp(userId);
         console.log('A user cannot receive the same OTP number if it\'s within a 24 hour period.', otp);
       } else {
         // 6. If a user requests the OTP to be resent within X minutes, it will resend the original OTP (and update the expiry) instead of generating a new one. X is a config variable set to 5 for now.
@@ -73,7 +76,7 @@ export class OtpService {
 
         // 7. An OTP cannot be resent more than X times. X is a config variable set to 3 for now.
         if (otp.resentCount >= +this.configService.get<number>('OTP_MAX_RESEND')) {
-          otp = await this.generateNewOtp(userId);
+          otp = await this.generateOtp(userId);
           console.log('7. An OTP cannot be resent more than X times. X is a config variable set to 3 for now.', otp);
         } else {
           otp.resentCount++;
@@ -90,11 +93,38 @@ export class OtpService {
     }
 
     await this.sendOtpMail(user, otp.pin);
-
-    return otp.pin;
   }
 
-  private async generateNewOtp(userId: number) {
+  async validateOtp(payload: OtpValidateDto): Promise<{accessToken: string}> {
+    const otp = await this.dbService.otp.findFirst({
+      where: { 
+        AND: [
+          { userId: payload.userId },
+          { pin: payload.pin },
+          { isUsed: false },
+          { expiresAt: { gt: new Date() } },
+        ]
+      },
+    });
+
+    if (!otp) {
+      throw new UnauthorizedException('Invalid pin, please try again or request a new one.')
+    }
+
+    otp.isUsed = true;
+    await this.dbService.otp.update({
+      where: {
+        id: otp.id,
+      },
+      data: otp,
+    });
+
+    const accessToken = await this.userService.getAccessToken(otp.userId);
+    
+    return { accessToken };
+  }
+
+  private async generateOtp(userId: number) {
     let pin;
     let isUsed = true;
     const max = Math.pow(10, 6);
