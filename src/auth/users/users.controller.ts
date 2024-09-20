@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { UsersService } from './users.service';
-import { LoginDto } from './dto/login-user';
+import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from 'src/shared/guards/auth/auth.guard';
 
 @Controller('auth/users')

@@ -6,28 +6,8 @@ import { Prisma } from '@prisma/client';
 export class OtpController {
   constructor(private readonly otpService: OtpService) {}
 
-  @Post()
-  create(@Body() createOtpDto: Prisma.OtpCreateInput) {
-    return this.otpService.create(createOtpDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.otpService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.otpService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOtpDto: Prisma.OtpUpdateInput) {
-    return this.otpService.update(+id, updateOtpDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.otpService.remove(+id);
+  @Post(':clientId')
+  generate(@Param('clientId') clientId: number) {
+    return this.otpService.generateOtp(+clientId);
   }
 }

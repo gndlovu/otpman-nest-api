@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { DatabaseService } from '../../database/database.service';
 import { MailerService } from '../../mailer/mailer.service';
 import { SendMailDto } from '../../mailer/mailer.interface';
-import { LoginDto } from './dto/login-user';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class UsersService {
