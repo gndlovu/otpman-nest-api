@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
@@ -8,6 +8,7 @@ import { DatabaseService } from '../../database/database.service';
 import { MailerService } from '../../mailer/mailer.service';
 import { SendMailDto } from '../../mailer/mailer.interface';
 import { LoginDto } from './dto/login.dto';
+import { OtpService } from '../otp/otp.service';
 
 @Injectable()
 export class UsersService {
@@ -16,6 +17,7 @@ export class UsersService {
         private readonly mailerService: MailerService,
         private readonly configService: ConfigService,
         private readonly jwtService: JwtService,
+        @Inject(forwardRef(() => OtpService)) private readonly otpService: OtpService,
     ) {}
 
     async create(payload: Prisma.UserCreateInput) {
@@ -78,6 +80,8 @@ export class UsersService {
         if (!isValid) {
             throw new UnauthorizedException('Invalid email / password.');
         }
+
+        await this.otpService.requestOtp(user.id);
 
         return { isValid: true };
     }

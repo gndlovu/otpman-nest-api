@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
@@ -15,7 +15,7 @@ export class OtpService {
     private readonly dbService: DatabaseService, 
     private readonly configService: ConfigService,
     private readonly mailerService: MailerService,
-    private readonly userService: UsersService,
+    @Inject(forwardRef(() => UsersService)) private readonly userService: UsersService,
   ) {}
 
   async requestOtp(userId: number) {
