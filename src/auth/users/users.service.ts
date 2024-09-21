@@ -65,7 +65,7 @@ export class UsersService {
         return user;
     }
 
-    async login(payload: LoginDto): Promise<{isValid: boolean}> {
+    async login(payload: LoginDto): Promise<{id: number, name: string}> {
         const user = await this.dbService.user.findFirst({
             where: {
                 email: payload.email
@@ -83,7 +83,7 @@ export class UsersService {
 
         await this.otpService.requestOtp(user.id);
 
-        return { isValid: true };
+        return { id: user.id, name: user.firstName };
     }
     
     async getAccessToken(userId: number) {
