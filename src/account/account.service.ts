@@ -3,10 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import _ from 'underscore';
 
-import { SendMailDto } from '../mailer/mailer.interface';
+import { SendMailDto } from '../shared/mailer/mailer.interface';
 import { DatabaseService } from '../shared/database/database.service';
 import { hashPassword } from '../shared/utils/password-hasher.util';
-import { MailerService } from '../mailer/mailer.service';
+import { MailerService } from '../shared/mailer/mailer.service';
 
 @Injectable()
 export class AccountService {
