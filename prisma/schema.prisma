@@ -13,17 +13,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Otp {
-  id          Int       @id @default(autoincrement())
-  pin         String
-  resentCount Int       @default(0)
-  createdAt   DateTime  @default(now())
-  expiresAt   DateTime
-  isUsed      Boolean   @default(false)
-  user        User      @relation(fields: [userId], references: [id])
-  userId      Int
-}
-
 model User {
   id        Int       @id @default(autoincrement())
   firstName String    @db.VarChar(255)
@@ -33,4 +22,15 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   Otp Otp[]
+}
+
+model Otp {
+  id          Int       @id @default(autoincrement())
+  pin         String
+  resentCount Int       @default(0)
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime
+  isUsed      Boolean   @default(false)
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
 }
