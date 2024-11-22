@@ -114,18 +114,22 @@ export class AuthService {
 
     async verifyOtp(payload: OtpVerifyDto) {
         const otp = await this.dbService.otp.findFirst({
-            where: {
-                AND: [
-                    { userId: payload.userId },
-                    { pin: payload.pin },
-                    { isUsed: false },
-                    { expiresAt: { gt: new Date() } },
-                ]
-            },
+            where: { userId: payload.userId },
+            orderBy: { createdAt: 'desc' },
         });
 
-        if (!otp) {
-            throw new UnauthorizedException('Invalid pin, please try again or request a new one.')
+        const now = new Date();
+
+        // 4. Only the latest OTP can be valid at any given time.
+        if (
+            !otp ||
+            otp.pin !== payload.pin ||
+            otp.expiresAt.getTime() < now.getTime() ||
+            otp.isUsed
+        ) {
+            throw new UnauthorizedException(
+                'Invalid pin, please try again or request a new one.',
+            );
         }
 
         otp.isUsed = true;
