@@ -7,8 +7,8 @@ import { DatabaseModule } from '../shared/database/database.module';
 import { MailerModule } from '../shared/mailer/mailer.module';
 
 @Module({
-  imports: [DatabaseModule, ConfigModule, MailerModule],
-  controllers: [AccountController],
-  providers: [AccountService]
+    imports: [DatabaseModule, ConfigModule, MailerModule],
+    controllers: [AccountController],
+    providers: [AccountService],
 })
 export class AccountModule {}

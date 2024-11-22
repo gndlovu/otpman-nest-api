@@ -9,7 +9,10 @@ import Mail from 'nodemailer/lib/mailer';
 export class MailerService {
     constructor(private readonly configService: ConfigService) {}
 
-    private getMailTransport(): nodemailer.Transporter<SMTPTransport.SentMessageInfo, SMTPTransport.Options> {
+    private getMailTransport(): nodemailer.Transporter<
+        SMTPTransport.SentMessageInfo,
+        SMTPTransport.Options
+    > {
         const transporter = nodemailer.createTransport({
             host: this.configService.get<string>('MAIL_HOST'),
             port: this.configService.get<number>('MAIL_PORT'),
@@ -35,7 +38,7 @@ export class MailerService {
             html: mailDto.html,
         };
 
-        try{
+        try {
             const result = await transport.sendMail(mailOptions);
 
             return result;
