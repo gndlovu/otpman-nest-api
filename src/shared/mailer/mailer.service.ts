@@ -12,7 +12,7 @@ export class MailerService {
     private getMailTransport(): nodemailer.Transporter<
         SMTPTransport.SentMessageInfo,
         SMTPTransport.Options
-    > {
+        > {
         const transporter = nodemailer.createTransport({
             host: this.configService.get<string>('MAIL_HOST'),
             port: this.configService.get<number>('MAIL_PORT'),
