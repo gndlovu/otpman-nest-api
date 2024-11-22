@@ -7,4 +7,4 @@ export type SendMailDto = {
     html: string;
     text?: string;
     placeholderReplacements?: Record<string, string>;
-}
+};
