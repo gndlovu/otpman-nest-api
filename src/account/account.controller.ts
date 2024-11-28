@@ -9,9 +9,9 @@ import { SignupSchema } from '../shared/schemas/signup.schema';
 export class AccountController {
     constructor(private readonly accountService: AccountService) {}
 
-  @Post('signup')
-  @UsePipes(new JoiValidationPipe(SignupSchema))
-  create(@Body() createUserDto: Prisma.UserCreateInput) {
-    return this.accountService.signUp(createUserDto);
-  }
+    @Post('signup')
+    @UsePipes(new JoiValidationPipe(SignupSchema))
+    create(@Body() createUserDto: Prisma.UserCreateInput) {
+        return this.accountService.signUp(createUserDto);
+    }
 }

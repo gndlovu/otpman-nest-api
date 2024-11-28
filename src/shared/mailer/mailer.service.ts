@@ -13,7 +13,7 @@ export class MailerService {
         const transporter = nodemailer.createTransport({
             host: this.configService.get<string>('MAIL_HOST'),
             port: this.configService.get<number>('MAIL_PORT'),
-            secure: false,
+            secure: this.configService.get<boolean>('MAIL_SSL'),
             auth: {
                 user: this.configService.get<string>('MAIL_USER'),
                 pass: this.configService.get<string>('MAIL_PASS'),
@@ -35,7 +35,7 @@ export class MailerService {
             html: mailDto.html,
         };
 
-        try{
+        try {
             const result = await transport.sendMail(mailOptions);
 
             return result;

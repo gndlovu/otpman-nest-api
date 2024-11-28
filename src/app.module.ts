@@ -8,18 +8,18 @@ import { AccountModule } from './account/account.module';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [
-    DatabaseModule,
-    UsersModule,
-    MailerModule,
-    AccountModule,
-    AuthModule
-  ],
-  controllers: [],
-  providers: [],
+    imports: [
+        DatabaseModule,
+        UsersModule,
+        MailerModule,
+        AccountModule,
+        AuthModule,
+    ],
+    controllers: [],
+    providers: [],
 })
 export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*');
-  }
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(LoggerMiddleware).forRoutes('*');
+    }
 }

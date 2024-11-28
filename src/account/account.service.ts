@@ -18,7 +18,7 @@ export class AccountService {
 
     async signUp(payload: Prisma.UserCreateInput) {
         const exists = await this.dbService.user.findUnique({
-            where: { email: payload.email }
+            where: { email: payload.email },
         });
 
         if (exists) {
@@ -34,7 +34,7 @@ export class AccountService {
                 {
                     name: `${user.firstName} ${user.lastName}`,
                     address: user.email,
-                }
+                },
             ],
             subject: 'Successful Registration',
             html: `

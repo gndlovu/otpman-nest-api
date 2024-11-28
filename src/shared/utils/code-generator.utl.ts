@@ -1,4 +1,4 @@
-import { AppConstants } from "./constants";
+import { AppConstants } from './constants';
 
 export const generateOTP = (): string => {
     const digits = AppConstants.OTP_DIGITS;

@@ -9,17 +9,17 @@ import { MailerModule } from '../shared/mailer/mailer.module';
 import { DatabaseModule } from '../shared/database/database.module';
 
 @Module({
-  controllers: [AuthController],
-  providers: [AuthService],
-  imports: [
-    DatabaseModule, 
-    ConfigModule, 
-    MailerModule,
-    JwtModule.register({
-      global: true,
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: '300s' },
-    }),
-  ]
+    controllers: [AuthController],
+    providers: [AuthService],
+    imports: [
+        DatabaseModule,
+        ConfigModule,
+        MailerModule,
+        JwtModule.register({
+            global: true,
+            secret: jwtConstants.secret,
+            signOptions: { expiresIn: '300s' },
+        }),
+    ],
 })
 export class AuthModule {}
